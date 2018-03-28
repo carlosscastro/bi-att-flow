@@ -37,6 +37,7 @@
 
 \date{}
 
+
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -52,13 +53,14 @@ Since the Stanford Question Answering Dataset (SQuAD) \cite{squad:2016} was rele
 
 In the field of computer vision, neural networks are rarely trained from scratch. Generally networks are trained with ImageNet \cite{imagenet}, a large-scale hierarchical image database, to obtain features. Transfer learning allows us to transfer this knowledge to other tasks. Analogously to ImageNet for computer vision, we could use weights from neural networks trained for SQuAD dataset as initial weights for different tasks in other corpora. 
 
-In this paper, we study training bi-directional attention flow networks (BiDAF) on the SQuAD dataset and then transferring that knowledge to perform on the Microsoft MAchine Reading COmprehension Dataset (MS-MARCO) dataset \cite{msmarco:2016}, which is based off real web queries and human written answers. Given that the SQuAD dataset is extracted from Wikipedia content \cite{squad:2016}, while the MS-MARCO dataset is obtained from web user queries and web content, the domains and quality of the text vary wildly. With MS-MARCO being quite representative of web content, it contains a wide variety of text and content quality, while the Wikipedia content from the SQuAD dataset is quite curated and edited by the community. Considering this, transfer learning from a model trained on the SQuAD dataset to the MS-MARCO dataset is a non-trivial task, and with relevant implications as we discuss in the following sub section.
+In this paper, we study training bi-directional attention flow networks (BiDAF) on the SQuAD dataset and then transferring that knowledge to perform on the Microsoft MAchine Reading COmprehension Dataset (MS-MARCO) dataset \cite{msmarco:2016}, which is based off real web queries and human written answers. Given that the SQuAD dataset is extracted from Wikipedia content \cite{squad:2016}, while the MS-MARCO dataset is obtained from web user queries and web content, the domains and quality of the text vary wildly. With MS-MARCO being quite representative of web content, it contains a wide variety of text and content quality, while the Wikipedia content from the SQuAD dataset is quite curated and edited by the community. Considering this, transfer learning from a model trained on the SQuAD dataset to the MS-MARCO dataset is a non-trivial task, and with relevant implications as we discuss in sub-section \ref{sec:motivation}.
 
 \subsection{Motivation}
+\label{sec:motivation}
 
-The implications of successful transfer learning from models trained on the SQuAD dataset to other corpora with little or no labeled data are extremely relevant for most conversational interfaces, including chatbots, conversational agents and conversation augmented apps. Next, we describe two brief scenarios that demonstrate potential applicability of this study.
+The implications of successful transfer learning from models trained on the SQuAD dataset to other corpora with little or no labeled data are extremely relevant for most conversational interfaces, including chatbots, conversational agents and conversation-augmented applications. Below, we describe two brief scenarios that demonstrate potential applicability of this study.
 
-First, consider question answering chatbots. It might be useful to have chatbots that receive certain passages and can answer questions about those passages. A concrete example would be a car-embedded chatbot that ingests the car manual, and then the passengers can ask questions to the car, such as \textit{what is the ideal tire pressure?}. Should transfer learning be proven feasible over BiDAF networks, this chatbot could be created with little or none labeled questions.
+First, consider question-answering chatbots. It might be useful to have chatbots that receive certain passages and can answer questions about those passages. A concrete example would be a car-embedded chatbot that ingests the car manual, and then the passengers can ask questions to the car, such as \textit{what is the ideal tire pressure?}. Should transfer learning be proven feasible over BiDAF networks, this chatbot could be created with little or none labeled examples.
 
 Another example could be augmenting web content with conversational agents. A possible implementation could be a web browser extension to which users can ask questions about the current web page. A user loads a web page and asks a question, then the text and the question are entered into a model trained over the SQuAD dataset, and the user gets an answer to their query without even reading the article.
 
@@ -157,7 +159,7 @@ Finally, we also train another BiDAF network on the MS-MARCO dataset without tra
 
 \subsection{BiDAF over SQuAD dataset}
 
-The first step of our research is to train a BiDAF over the SQuAD dataset. We train for 16.4 hs using a single NVidia K80 GPU, and obtain near state of the art results, with exact match percentage of $65.64$ and F1 score of $75.68$. The baseline logistic regression performance for this dataset is exact match percentage of $40.0$ and F1 score of $51$. Human performance for this task is EM at $82.3$ and F1 score of $91.2$ \cite{squad:2016} \cite{rnet}.
+The first step of our research is to train a BiDAF over the SQuAD dataset. We train for 16.4 hours using a single NVidia K80 GPU, and obtain results close to the current state of the art, with exact match percentage of $65.64$ and F1 score of $75.68$. The baseline logistic regression performance for this dataset is exact match percentage of $40.0$ and F1 score of $51$. Human performance for this task is EM at $82.3$ and F1 score of $91.2$ \cite{squad:2016} \cite{rnet}.
 
 \subsection{BiDAF over MS-MARCO dataset}
 
