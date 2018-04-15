@@ -161,6 +161,9 @@ def prepro_each(args, data_type, start_ratio=0.0, stop_ratio=1.0, out_name="defa
             rxi = [ai, pi]
             assert len(x) - 1 == ai
             assert len(x[ai]) - 1 == pi
+
+            is_valid_qa = True
+
             for qa in para['qas']:
                 # get words
                 qi = word_tokenize(qa['question'])
@@ -168,6 +171,7 @@ def prepro_each(args, data_type, start_ratio=0.0, stop_ratio=1.0, out_name="defa
                 yi = []
                 cyi = []
                 answers = []
+                
                 for answer in qa['answers']:
                     answer_text = answer['text']
                     answers.append(answer_text)
@@ -187,7 +191,8 @@ def prepro_each(args, data_type, start_ratio=0.0, stop_ratio=1.0, out_name="defa
                     cyi1 = answer_stop - i1 - 1
                     # print(answer_text, w0[cyi0:], w1[:cyi1+1])
                     assert answer_text[0] == w0[cyi0], (answer_text, w0, cyi0)
-                    assert answer_text[-1] == w1[cyi1]
+                    if answer_text[-1] != w1[cyi1]:
+                        is_valid_qa = False
                     assert cyi0 < 32, (answer_text, w0)
                     assert cyi1 < 32, (answer_text, w1)
 
@@ -199,16 +204,17 @@ def prepro_each(args, data_type, start_ratio=0.0, stop_ratio=1.0, out_name="defa
                     lower_word_counter[qij.lower()] += 1
                     for qijk in qij:
                         char_counter[qijk] += 1
-
-                q.append(qi)
-                cq.append(cqi)
-                y.append(yi)
-                cy.append(cyi)
-                rx.append(rxi)
-                rcx.append(rxi)
-                ids.append(qa['id'])
-                idxs.append(len(idxs))
-                answerss.append(answers)
+                        
+                if is_valid_qa:
+                    q.append(qi)
+                    cq.append(cqi)
+                    y.append(yi)
+                    cy.append(cyi)
+                    rx.append(rxi)
+                    rcx.append(rxi)
+                    ids.append(qa['id'])
+                    idxs.append(len(idxs))
+                    answerss.append(answers)
 
             if args.debug:
                 break
