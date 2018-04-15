@@ -8,7 +8,7 @@ from collections import Counter
 
 from tqdm import tqdm
 
-from marco-preprocess.utils import get_word_span, get_word_idx, process_tokens
+from squad.utils import get_word_span, get_word_idx, process_tokens
 
 
 def main():
