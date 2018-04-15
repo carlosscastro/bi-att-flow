@@ -26,7 +26,9 @@ def get_word_span(context, wordss, start, stop):
             if not (stop <= span[0] or start >= span[1]):
                 idxs.append((sent_idx, word_idx))
 
-    assert len(idxs) > 0, "{} {} {} {}".format(context, spanss, start, stop)
+    if len(idxs) == 0:
+        return None, None
+    #assert len(idxs) > 0, "{} {} {} {}".format(context, spanss, start, stop)
     return idxs[0], (idxs[-1][0], idxs[-1][1] + 1)
 
 
