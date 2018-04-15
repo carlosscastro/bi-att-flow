@@ -195,10 +195,10 @@ def prepro_each(args, data_type, start_ratio=0.0, stop_ratio=1.0, out_name="defa
                         cyi1 = answer_stop - i1 - 1
                         # print(answer_text, w0[cyi0:], w1[:cyi1+1])
                         #assert answer_text[0] == w0[cyi0], (answer_text, w0, cyi0)
-                        if cyi1 >= len(w1) or answer_text[-1] != w1[cyi1] or answer_text[0] == w0[cyi0]:
+                        if cyi1 >= len(w1) or answer_text[-1] != w1[cyi1] or answer_text[0] == w0[cyi0] or cyi0 >= 32 or cyi1 >= 32:
                             is_valid_qa = False
-                        assert cyi0 < 32, (answer_text, w0)
-                        assert cyi1 < 32, (answer_text, w1)
+                        #assert cyi0 < 32, (answer_text, w0)
+                        #assert cyi1 < 32, (answer_text, w1)
 
                         yi.append([yi0, yi1])
                         cyi.append([cyi0, cyi1])
