@@ -14,8 +14,8 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('paths', nargs='+')
     parser.add_argument('-o', '--out', default='ensemble.json')
-    parser.add_argument("--data_path", default="data/squad/data_test.json")
-    parser.add_argument("--shared_path", default="data/squad/shared_test.json")
+    parser.add_argument("--data_path", default="data/marco/data_test.json")
+    parser.add_argument("--shared_path", default="data/marco/shared_test.json")
     args = parser.parse_args()
     return args
 

@@ -29,7 +29,7 @@ def get_args():
     parser.add_argument("--step", type=int, default=5000)
     parser.add_argument("--template_name", type=str, default="visualizer.html")
     parser.add_argument("--num_per_page", type=int, default=100)
-    parser.add_argument("--data_dir", type=str, default="data/squad")
+    parser.add_argument("--data_dir", type=str, default="data/marco")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--open", type=str, default='False')
