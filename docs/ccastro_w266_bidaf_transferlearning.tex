@@ -100,7 +100,7 @@ In the SQuAD dataset, the answer to every question is a segment of text, or \tex
 \subsection{MS-MARCO Dataset}
 \label{ssec:marco}
 
-The Microsoft MAchine Reading COmprehension (MS-MARCO) \cite{msmarco:2016} dataset is aimed to overcome a number of well-known weaknesses of previous publicly available datasets for the same task of reading comprehension and question answering. In MS-MARCO, all questions are sampled from real anonymized user queries. The context passages, from which answers in the dataset are derived, are extracted from real web documents using the most advanced version of the Bing search engine. The answers to the queries are human generated, and contain words that may not be in the original paragraph. This last consideration is a crucial difference with the SQuAD dataset. MS-MARCO contains 100,000 queries with their corresponding answers.
+The Microsoft MAchine Reading COmprehension (MS-MARCO) \cite{msmarco:2016} dataset is aimed to overcome a number of well-known weaknesses of previous publicly available datasets for the same task of reading comprehension and question answering. In MS-MARCO, all questions are sampled from real anonymized user queries. The context passages, from which answers in the dataset are derived, are extracted from real web documents using the most advanced version of the Bing search engine. The answers to the queries are human generated, and may contain words that could not be in the original paragraph. This last consideration is a crucial difference with the SQuAD dataset. Additionally, while the SQuAD dataset contains Wikipedia content which is generally quite curated, the MS-MARCO dataset contains a widea breadth of writing styles, such as news, blogs, social media, etc. MS-MARCO contains 100,000 queries with their corresponding answers.
 
 
 \begin{table}
@@ -116,6 +116,7 @@ The Microsoft MAchine Reading COmprehension (MS-MARCO) \cite{msmarco:2016} datas
   }
 \end{table}
 
+For the purpose of this study, we use only questions from the MS-MARCO dataset where the answer is a sub-span of the passage. This way focus on studyin the implications of answering questions from a different domain, without introducing yet the additional complexity of dealing with words outside of the original question.
 
 \subsection{Reading comprehension}
 \label{ssec:reading_comprehension}
@@ -125,7 +126,7 @@ For reading comprehension style question answering, a passage $\textbf{ P}$ and 
 \subsection{Bi-Directional Attention Flow}
 \label{ssec:bidaf}
 
-To study transfer learning, we choose one method out of the multiple state of the art techniques named Bi-Directional Attention Flow (BiDAF) network. BiDAF is a hierarchical, multi-stage architecture for modeling the representations of the context paragraph at different levels of granularity. BIDAF includes character-level, word-level, and contextual embeddings, and uses bi-directional attention flow to obtain a query-aware context representation. It would be interesting studying how other state of the art techniques, such as R-NET, respond to transfer learning.
+To study transfer learning, we choose one method out of the multiple state of the art techniques named Bi-Directional Attention Flow (BiDAF) network  \cite{bidaf:2017}. BiDAF is a hierarchical, multi-stage architecture for modeling the representations of the context paragraph at different levels of granularity. BIDAF includes character-level, word-level, and contextual embeddings, and uses bi-directional attention flow to obtain a query-aware context representation. It would be interesting studying how other state of the art techniques, such as R-NET, respond to transfer learning.
 
 
 \begin{figure*}
@@ -133,6 +134,14 @@ To study transfer learning, we choose one method out of the multiple state of th
   \caption{Bi-directional attention flow network architecture}
 \end{figure*}
 
+
+The implementation of Bi-directional attention flow networks we utilize  \cite{bidaf:2017} is specially designed for datasets where the anwer $A$ is a sub string of the passage $P$. This is clearly reflected in the architecture of the network, where the inputs are the context passage and the query, and output are basically two integers, indicating the start and end indices of the answer text within the context query. To achieve this, the training loss to be minimized can be expressed as the sum of the negative log probabilities of the true start and end indices by the predicted distributions, averaged over all examples:
+
+$$
+L(\theta)  = - \frac{1}{N} \sum^N_i log(p^1_{y^1_i}) + log(p^2_{y^2_i})
+$$
+
+where $\theta$ is the set of all trainable weights in the model including CNN filters and LSTM cells, $N$ is the number of train examples and $y_1_i$ and $y_2_i$ are the true start and end indices of the \textit{i}-th example respectively and $p_k$ indicates the \textit{k}-th value of the vector $p$, which represents the probability distributions of the start and end indices over the entire paragraphs, and is obtained form the softmax calculation in the output layer \cite{bidaf:2017}.
 
 %\centering
 %
@@ -152,36 +161,94 @@ First, we train a BiDAF network on the SQuAD dataset, being this our source task
 
 Let $n$ be the number of labeled samples in the target domain we want to experiment with, then an experiment is as follows: Select $n$ random question-answer pairs from the MS-MARCO dataset, re-train the source model on the randomly selected pairs, and evaluate the resulting model on the MS-MARCO evaluation set. We run this experiment multiple times, for different values of $n$, including $n=0$, which is the case where the target domain has $0$ labeled examples. 
 
-Finally, we also train another BiDAF network on the MS-MARCO dataset without transfer, as a goal for accuracy. The ideal result of this experiment is to achieve similar accuracy in our transfer experiments as in this non-transfer model, which would mean that we can perform this task successfully without fully training our model for this task. It is worth noting that BiDAF performance over MS-MARCO was never studied, but we will compare the results to those 
+Finally, we also train another BiDAF network on the MS-MARCO dataset without transfer, as a goal for accuracy. The ideal result of this experiment is to achieve similar accuracy in our transfer experiments as in this non-transfer model, which would mean that we can perform this task successfully without fully training our model for this task. It is worth noting that BiDAF performance over MS-MARCO was never studied, so that is an unexpected contribution of our work, in addition to its main focus around transfer learning.
 
 \section{Results}
 \label{sec:results}
 
-\subsection{BiDAF over SQuAD dataset}
+\subsection{Bi-DAF over SQuAD dataset}
 
-The first step of our research is to train a BiDAF over the SQuAD dataset. We train for 16.4 hours using a single NVidia K80 GPU, and obtain results close to the current state of the art, with exact match percentage of $65.64$ and F1 score of $75.68$. The baseline logistic regression performance for this dataset is exact match percentage of $40.0$ and F1 score of $51$. Human performance for this task is EM at $82.3$ and F1 score of $91.2$ \cite{squad:2016} \cite{rnet}.
+The first step of our research is to train a BiDAF over the SQuAD dataset. We train for 16.4 hours using a single NVidia K80 GPU, and obtain results very close to those reported in the original study \cite{bidaf:2017}, with exact match percentage of $65.64$ and F1 score of $75.68$. The baseline logistic regression performance for this dataset is exact match percentage of $40.0$ and F1 score of $51$. Human performance for this task is EM at $82.3$ and F1 score of $91.2$ \cite{squad:2016} \cite{rnet}.
 
-\subsection{BiDAF over MS-MARCO dataset}
+\begin{table}[t!]
+\begin{center}
+\begin{tabular}{l|r|r}
+\hline \bf Model & \bf EM & \bf F1 \\ \hline
+Logistic regression baseline  \cite{squad:2016} & 40.4 & 51.0 \\
+Bi-DAF (Original paper) & 68.0 & 77.3 \\
+Bi-DAF (Our result - initial learning rate: 0.8) & 75.68 & \\
+Bi-DAF (Our result - initial learning rate: 0.5) & 74.07 & \\
+R-Net (Single model) & 76.461 & 84.265 \\
+Human performance \cite{squad:2016} & 82.304 & 91.221 \\
+\end{tabular}
+\end{center}
+\caption{\label{squad-table} Results over the SQuAD dataset, including our results, baseline, human performance and state of the art as of the time of writing this work. All results are for single model, ensembles tend to do quite better but add complexity to the study.}
+\end{table}
 
-We also consider the baseline models for MS-MARCO dataset. The baseline performance for this dataset using memory networks for passages is ROUGE-L at $0.119$ and BLEU $0.340$ \cite{msmarco:2016}. One of the top results for MS-MARCO, R-NET \cite{rnet}, report ROUGE-L $0.4289$ and BLEU $0.4222$. Human performance was ascertained by having two judges answering the same question and measuring their responses, obtaining ROUGE-L $0.47$ and BLEU $0.46$.
+Note that as most literature around this style of machine comprehension, we report EM which represents the percentage of exact matches, and the F1 score, which measures the weighted average of the precision and recall rate at a character level.
+
+\subsection{Bi-DAF over MS-MARCO dataset}
+
+We start by obtaining 500 labeled examples from the MS-MARCO dataset for training and 250 for testing, all in which the answer is a substring of the context passage. We restrict the number of samples, since the purpose of this study is to understand the applicability of architectures such as Bi-DAF to other domains where we have little to no labeled data.
+
+Once we have the labeled samples from MS-MARCO, we run 2 families of experiments: first, we study direct training a new Bi-DAF over that data and second, we study fine tunning Bi-DAF entworks pre-trained over SQuAD dataset with two different learning rates.
+
+For the first experiment, we train a Bi-DAF from scratch over the MS-MARCO 500 labeled samples with no transfer. Given the little amount of data, we expect poor results, but this allows us to compare with the results we'll obtain later from transfer learning, and emphathise the value of knowledge transfer. Many studies on transfer learning start by using direct training transfer path as a baseline or means of comparison \cite{conneau:2017}.
+
+For the second set of experiments, we start with two Bi-DAF networks trained with the SQuAD dataset, using initial learning rates of $0.8$ and $0.5$ respectively. The motivation for this, is that even though the lower learning rate is suboptimal when verifying for SQuAD, it might help to avoid overfitting to the SQuAD domain, and allow for better adaption of the network to the MS-MARCO content. Before fine tuning the network with our MS-MARCO samples, we evaluate the SQuAD trained network over the MS-MARCO evaluation set, to also understand how much the fine tuning does later on. We incrementally fine-tune the pre-trained model with different amount of samples until we reach the total of 500 training samples, and evaluate against our MS-MARCO training samples at each step, to understand the impact of the number of samples used for fine tuning in the transfer performance. 
+
+The results over the MS-MARCO evaluation is depicted in the table below.
+
+\begin{table}[t!]
+\begin{center}
+\begin{tabular}{l|r|r}
+\hline \bf Model & \bf F1 (learning rate = 0.8) & \bf F1 (learning rate = 0.5) \\ \hline
+Bi-DAF over MS-MARCO baseline (Direct training - no transfer) & 11.02 & n/a  \\
+Bi-DAF SQuAD pre-trained (direct evaluation - no transfer) &  50.97 & 48.33 \\
+Bi-DAF SQuAD pre-trained + MS-MARCO fine tuning (133 samples) & 54.88 & 55.02 \\
+Bi-DAF SQuAD pre-trained + MS-MARCO fine tuning (250 samples) & 55.71 & 56.83 \\
+Bi-DAF SQuAD pre-trained + MS-MARCO fine tuning (500 samples) & 56.01 & \textbf(59.14) \\
+\end{tabular}
+\end{center}
+\caption{\label{squad-table} Results for transfer learning to the MS-MARCO domain, including the no-transfer baseline and the no fine tuning baseline.
+\end{table}
 
 
-\section{Next steps}
+\section{Analysis}
+\label{sec:analysis}
+
+\subsection {Transfer Learning value}
+
+There are many interesting things exposed by the results. First, the low performance when directly training Bi-DAF network over a dataset with a low number of samples is evident as we obtained an F1 score of $11.02$. This highlights the need for transfer learning towards other domains, since we can't generally obtain domain-specific and rich datasets such as SQuAD. Second, the substantial progress that can be achieved over a bit of fine tuning using a handful of domain-specific samples. With only 500 samples for fine tuning, we increased the F1 score more than 10 percent. This supports the theory in the near future, the SQuAD could be a staple dataset for neural model priming prior to transfer learning, such as ImageNet is in the field computer vision.
+
+It is also worth noting that even though pre-training the model with lower learning rate resulted in worst performance over SQuAD, when applied to transfer learning showed better results, likely because this allowed the network to generalize and perform better when being re-trained and subsequently shown passages and queries from a different domain.
+
+\subsection {Error Analysis}
+
+Of course, an F1 score of $59.14$ is still somewhat low and needs to be improved prior to start applying it in concrete technology. We now evaluate error areas to understand where we are failing, and identify areas for future research. We analyzed the errors for the most accurate model: Bi-DAF SQuAD pre-trained + MS-MARCO fine tuning (500 samples) with initial learning rate of 0.5. Still, F1 scores like these were the state of the art for SQuAD a when it was released, so it is still a great achievement given that we are talking about accuracy on a 500 sample dataset.
+
+Now, we analyze the impact of the kind of answer for evaluating question performance. In the MS-MARCO subset que utilized, we had most of the questions being of numeric answer ($28.4\%$, description answer ($52.6\%$) and location answer (5.7\%). We suspected that there might be specific types of questions where we underperformed, but that was not the case. The within-category F1 scores were never more than 3\% apart from each other.
+
+Analyzing the failing questions, we found 3 specific predominant traits: The formality and correctness of the language, the type of question (Why, when, what, etc) and whether the question has or not an answer.
+
+First, most of the wrongly answered questions had informal writing that would never be in wikipedia, such as text from social networks or specific informal news. 
+
+Second, we observe similar accuracies and F1 scores for questions that started with \textit{Where} and \textit{What} for example ($F1=62.02$ and $F1=61.875$ respectively), but a notorious decrease in performance for \textit{Why} questions ($F1 = 51.105$). The Bi-DAF original authors also report low performance in \textit{Why} and \textit{Where} questions, so we think this might be part of the nature of the architecture, given that these types of questions are as common as the other types in the original dataset, but it needs to be subjected to further analysis.
+
+
+Finally, we observe very low F1 scores for questions that do not have an answer ($F1 = 0.48.12$), which means that our tended to provide an incorrect answer rather than predict that there was no answer. However, in our 500 samples dataset, there were only two such questions, so this low perofrmance might be related to imbalances in our training set and underlying dataset.
+
+
+\section{Future work}
 \label{sec:next_steps}
 
-\subsection {BiDAF over MS-MARCO }
+Overall, the goals following this study center around improving the performance of transfer learning to reach performances that allow the direct applicability of these concepts to technology. Below we mention some potential research directions.
 
-The next step to follow in the implementation is to train a BiDAF network over the MS-MARCO dataset. There is a major difference in that the MS-MARCO dataset has multiple text passages for each question, corresponding with the multiple results from the web query. R-NET has achieved the top results in the MS-MARCO leaderboard by concatenating all the candidate passages, which makes the data from MS-MARCO and SQuAD have the same shape. This training involves no transfer, it is used only for comparison with future models.
+First, as a direct continuation of this study, we will run multiple experiments to compensate for the issues found in the error analysis, such as questions without answers, \textit{why} questions, etc.
 
-\subsection {MS-MARCO Evaluation}
+Additionally, other model-specific techniques should be studied, such as a broader range of learning rates for the pre-training over the SQuAD dataset. Another experiment to consider would be to not freeze the embedding layer after completing the SQuAD training, and rather keep training embeddings during fine tuning.
 
-While the passages provided in MS-MARCO generally contain useful information for the queries, the answer could contain words outside of the query. Because of the nature of the dataset, the authors of MS-MARCO chose to use ROUGE-L and phrasing-aware evaluation framework to measure performance for long textual answers. We will implement ROUGE-L and BLEU metrics \cite{msmarco:2016}.
-
-\subsection{Transfer experiment}
-
-We will write the transfer experiment where we train a model with SQuAD and then re-train with a different numbers of samples from MS-MARCO (including zero examples). We will then evaluate the obtained accuracy metrics with our non-transfer MS-MARCO model. 
-
-
+Another crucial direction would be to now apply this over the top performing ensembles. For simplicity, we did this study over Bi-DAF which achieves $F1 = 77.3$ over SQuAD. However, there are Bi-DAF based ensembles from the same authors in the leaderboard that achieve much higher results, such as the recent BiDAF + Self Attention + ELMo (ensemble) which obtained $F1 = 87.432$, and is currently in the 5th position in the SQuAD leaderbord. Should that performance improvement translate into our transfer experiments, we would be already obtaining a substantial increase in the overall applicability of this approach.
 
 
 % include your own bib file like this:

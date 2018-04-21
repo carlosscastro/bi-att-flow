@@ -29,6 +29,7 @@ python -m squad.prepro
 ```
 
 ## 2. Training
+
 The model has ~2.5M parameters.
 The model was trained with NVidia Titan X (Pascal Architecture, 2016).
 The model requires at least 12GB of GPU RAM.
@@ -57,6 +58,7 @@ The printed scores are not official (our scoring scheme is a bit harsher).
 To obtain the official number, use the official evaluator (copied in `squad` folder, `squad/evaluate-v1.1.py`). For more information See 3.Test.
 
 ## 3. Test on the SQuAD dataset
+
 To test, run:
 ```
 python -m basic.cli
@@ -106,6 +108,11 @@ Preprocess the MS-Marco data:
 
 ```
 python -m marco.prepro
+```
+
+Before training, it is recommended to first try the following code to verify everything is okay and memory is sufficient:
+```
+python -m marco.cli --mode train --debug
 ```
 
 Then, train the existing model. It is important to not specify `--noload` so that it will load the network we trained with the SQuAD dataset:
