@@ -56,8 +56,7 @@ Note that during the training, the EM and F1 scores from the occasional evaluati
 The printed scores are not official (our scoring scheme is a bit harsher).
 To obtain the official number, use the official evaluator (copied in `squad` folder, `squad/evaluate-v1.1.py`). For more information See 3.Test.
 
-
-## 3. Test
+## 3. Test on the SQuAD dataset
 To test, run:
 ```
 python -m basic.cli
@@ -99,43 +98,30 @@ If you are unfamiliar with CodaLab, follow these simple steps (given that you me
   ```
   If you want to run on GPU, you should run the script sequentially by removing '&' in the forloop, or you will need to specify different GPUs for each run of the for loop.
 
-## Results
+## 4. Train over MS-MARCO
 
-### Dev Data
+To train over MS-MARCO, copy the documents in `marco-data` within the repository to `$HOME/data/marco`. These documents were created from running the MArcoToSquadConverter tool under `tools` upon the original downloaded MS-MARCO dataset. This filters the questions that we want to study, where the answer is a subspan of the passage, and furthermore modifies the format so it matches that of the SQuAD dataset, and fits the input of the bi-directional attention flow implementation.
 
-Note these scores are from the official evaluator (copied in `squad` folder, `squad/evaluate-v1.1.py`). For more information See 3.Test.
-The scores appeared during the training could be lower than the scores from the official evaluator. 
+Preprocess the MS-Marco data:
 
-|          | EM (%) | F1 (%) |
-| -------- |:------:|:------:|
-| single   | 67.7   | 77.3   |
-| ensemble | 72.6   | 80.7   |
-
-### Test Data
-
-|          | EM (%) | F1 (%) |
-| -------- |:------:|:------:|
-| single   | 68.0   | 77.3   |
-| ensemble | 73.3   | 81.1   |
-
-Refer to [our paper][paper] for more details.
-See [SQuAD Leaderboard][squad] to compare with other models.
-
-
-<!--
-## Using Pre-trained Model
-
-If you would like to use pre-trained model, it's very easy! 
-You can download the model weights [here][save] (make sure that its commit id matches the source code's).
-Extract them and put them in `$PWD/out/basic/00/save` directory, with names unchanged.
-Then do the testing again, but you need to specify the step # that you are loading from:
 ```
-python -m basic.cli --mode test --batch_size 8 --eval_num_batches 0 --load_step ####
+python -m marco.prepro
 ```
--->
 
+Then, train the existing model. It is important to not specify `--noload` so that it will load the network we trained with the SQuAD dataset:
 
-## Multi-GPU Training & Testing
+```
+python -m marco.cli --mode train --debug
+```
+
+To test on MS-MARCO, you can run:
+
+```
+python -m marco.cli --len_opt --cluster
+```
+
+## 5. Multi-GPU Training & Testing
+
 Our model supports multi-GPU training.
 We follow the parallelization paradigm described in [TensorFlow Tutorial][multi-gpu].
 In short, if you want to use batch size of 60 (default) but if you have 3 GPUs with 4GB of RAM,
