@@ -42,14 +42,14 @@
 \maketitle
 \begin{abstract}
 
-Machine text comprehension involves answering a query about a given context paragraph, and requires modeling complex interactions between the context and the question. In the recent years, with the release of the  Stanford Question Answering dataset (SQuAD) \cite{squad:2016} and the Microsoft MAchine Reading COmprehension Dataset (MS-MARCO) dataset \cite{msmarco:2016}, there were significant improvements in the state of the art, to the point where some neural network architectures are relatively close to achieving human level accuracy on the SQuAD dataset. Despite the great advances in the field of machine reading comprehension, training state of the art models requires humongous amounts of labeled data consisting of thousands of passages plus multiple question-answer pairs on each passage. This acts as a limiting factor in the applicatiblity of machine comprehension techniques in technology outside of research benchmarks. In this paper, we aim to provide a solution to this shortcoming, by studying transfer learning over a neural network trained using the SQuAD dataset to other corpora. Successful results would open the door to multiple direct applications and further research opportunities.
+Machine text comprehension involves answering a query about a given context paragraph, and requires modeling complex interactions between the context and the question. In the recent years, with the release of the  Stanford Question Answering dataset (SQuAD) \cite{squad:2016} and the Microsoft MAchine Reading COmprehension Dataset (MS-MARCO) dataset \cite{msmarco:2016}, there were significant improvements in the state of the art, to the point where some neural network architectures are relatively close to achieving human level accuracy on the SQuAD dataset. Despite the great advances in the field of machine reading comprehension, training state of the art models requires humongous amounts of labeled data consisting of thousands of passages plus multiple question-answer pairs on each passage. This acts as a limiting factor in the applicability of machine comprehension techniques in technology outside of research benchmarks. In this paper, we aim to provide a solution to this shortcoming, by studying transfer learning over a neural network trained using the SQuAD dataset to other corpora. Successful results would open the door to multiple direct applications and further research opportunities.
 
 \end{abstract}
 
 
 \section{Introduction}
 
-Since the Stanford Question Answering Dataset (SQuAD) \cite{squad:2016} was released, rapid progress was made in the field of machine question answering. The original paperalready proposed a strong logistic regression model, and later other better performing approaches were published, based off match-LSTMs \cite{matchlstm} and bi-directional attention flow networks \cite{bidaf:2017}. Despite this recent progress in the field of machine text comprehension, SQuAD is a luxury dataset with a high amount of labeled data. This makes the applicability of these approaches to other corpora somewhat limited, since such humongous training data is not available. 
+Since the Stanford Question Answering Dataset (SQuAD) \cite{squad:2016} was released, rapid progress was made in the field of machine question answering. The original paper already proposed a strong logistic regression model, and later other better performing approaches were published, based off match-LSTMs \cite{matchlstm} and bi-directional attention flow networks \cite{bidaf:2017}. Despite this recent progress in the field of machine text comprehension, SQuAD is a luxury dataset with a high amount of labeled data. This makes the applicability of these approaches to other corpora somewhat limited, since such humongous training data is not available. 
 
 In the field of computer vision, neural networks are rarely trained from scratch. Generally networks are trained with ImageNet \cite{imagenet}, a large-scale hierarchical image database, to obtain features. Transfer learning allows us to transfer this knowledge to other tasks. Analogously to ImageNet for computer vision, we could use weights from neural networks trained for SQuAD dataset as initial weights for different tasks in other corpora. 
 
@@ -78,8 +78,7 @@ In section \ref{sec:related_work} we discuss bibliography and related work aroun
 \subsection{SQuAD Dataset}
 \label{ssec:squad}
 
-The Stanford Question Answering Dataset (SQuAD) \cite{rnet}, is a reading comprehension dataset consisting of 100,000+ questions posed by crowdworkers on a set of
-Wikipedia articles, where the answer to each question is a segment of text from the corresponding reading passage \cite{squad:2016}.
+The Stanford Question Answering Dataset (SQuAD) \cite{rnet}, is a reading comprehension dataset consisting of 100,000+ questions posed by crowd-workers on a set of Wikipedia articles, where the answer to each question is a segment of text from the corresponding reading passage \cite{squad:2016}.
 
 \begin{table}
 \centering
@@ -116,7 +115,7 @@ The Microsoft MAchine Reading COmprehension (MS-MARCO) \cite{msmarco:2016} datas
   }
 \end{table}
 
-For the purpose of this study, we use only questions from the MS-MARCO dataset where the answer is a sub-span of the passage. This way focus on studyin the implications of answering questions from a different domain, without introducing yet the additional complexity of dealing with words outside of the original question.
+For the purpose of this study, we use only questions from the MS-MARCO dataset where the answer is a sub-span of the passage. This way we focus on studying the implications of answering questions from a different domain, without introducing yet the additional complexity of dealing with words outside of the original question.
 
 \subsection{Reading comprehension}
 \label{ssec:reading_comprehension}
@@ -126,7 +125,7 @@ For reading comprehension style question answering, a passage $\textbf{ P}$ and 
 \subsection{Bi-Directional Attention Flow}
 \label{ssec:bidaf}
 
-To study transfer learning, we choose one method out of the multiple state of the art techniques named Bi-Directional Attention Flow (BiDAF) network  \cite{bidaf:2017}. BiDAF is a hierarchical, multi-stage architecture for modeling the representations of the context paragraph at different levels of granularity. BIDAF includes character-level, word-level, and contextual embeddings, and uses bi-directional attention flow to obtain a query-aware context representation. It would be interesting studying how other state of the art techniques, such as R-NET, respond to transfer learning.
+To study transfer learning, we choose one method out of the multiple state of the art techniques, named Bi-Directional Attention Flow (BiDAF) network  \cite{bidaf:2017}. BiDAF is a hierarchical, multi-stage architecture for modeling the representations of the context paragraph at different levels of granularity. BIDAF includes character-level, word-level, and contextual embeddings, and uses bi-directional attention flow to obtain a query-aware context representation. It would be interesting studying how other state of the art techniques, such as R-NET, respond to transfer learning.
 
 
 \begin{figure*}
@@ -135,13 +134,13 @@ To study transfer learning, we choose one method out of the multiple state of th
 \end{figure*}
 
 
-The implementation of Bi-directional attention flow networks we utilize  \cite{bidaf:2017} is specially designed for datasets where the anwer $A$ is a sub string of the passage $P$. This is clearly reflected in the architecture of the network, where the inputs are the context passage and the query, and output are basically two integers, indicating the start and end indices of the answer text within the context query. To achieve this, the training loss to be minimized can be expressed as the sum of the negative log probabilities of the true start and end indices by the predicted distributions, averaged over all examples:
+The implementation of Bi-directional attention flow networks we utilize  \cite{bidaf:2017} is specially designed for datasets where the anwer $A$ is a sub string of the passage $P$. This is clearly reflected in the architecture of the network, where the inputs are the context passage and the query, and output are basically two integers, indicating the start and end indices of the answer text within the context passage. To achieve this, the training loss to be minimized can be expressed as the sum of the negative log probabilities of the true start and end indices by the predicted distributions, averaged over all examples:
 
 $$
 L(\theta)  = - \frac{1}{N} \sum^N_i log(p^1_{y^1_i}) + log(p^2_{y^2_i})
 $$
 
-where $\theta$ is the set of all trainable weights in the model including CNN filters and LSTM cells, $N$ is the number of train examples and $y^1_i$ and $y^2_i$ are the true start and end indices of the \textit{i}-th example respectively and $p_k$ indicates the \textit{k}-th value of the vector $p$, which represents the probability distributions of the start and end indices over the entire paragraphs, and is obtained form the softmax calculation in the output layer \cite{bidaf:2017}.
+where $\theta$ is the set of all trainable weights in the model including CNN filters and LSTM cells, $N$ is the number of train examples and $y^1_i$ and $y^2_i$ are the true start and end indices of the \textit{i}-th example respectively and $p_k$ indicates the \textit{k}-th value of the vector $p$, which represents the probability distributions of the start and end indices over the entire paragraphs, and is obtained from the softmax calculation in the output layer \cite{bidaf:2017}.
 
 %\centering
 %
@@ -161,7 +160,7 @@ First, we train a BiDAF network on the SQuAD dataset, being this our source task
 
 Let $n$ be the number of labeled samples in the target domain we want to experiment with, then an experiment is as follows: Select $n$ random question-answer pairs from the MS-MARCO dataset, re-train the source model on the randomly selected pairs, and evaluate the resulting model on the MS-MARCO evaluation set. We run this experiment multiple times, for different values of $n$, including $n=0$, which is the case where the target domain has $0$ labeled examples. 
 
-Finally, we also train another BiDAF network on the MS-MARCO dataset without transfer, as a goal for accuracy. The ideal result of this experiment is to achieve similar accuracy in our transfer experiments as in this non-transfer model, which would mean that we can perform this task successfully without fully training our model for this task. It is worth noting that BiDAF performance over MS-MARCO was never studied, so that is an unexpected contribution of our work, in addition to its main focus around transfer learning.
+Finally, we also train another BiDAF network on the MS-MARCO dataset without transfer, as baseline that represents the performance we would reach without transfer learning, given a very small dataset. The ideal result of this experiment would be to achieve significantly higher accuracy in our transfer experiments than on this non-transfer model, which would mean that even in domains with little data, transfer learning from SQuAD can make up for that lack of data. sIt is worth noting that BiDAF performance over MS-MARCO was never studied, so that is an unexpected contribution of our work, in addition to its main focus around transfer learning. We won't report training over the entire marco dataset, but just a subset. We will report the results on the full dataset in a future separate study.
 
 \section{Results}
 \label{sec:results}
@@ -191,11 +190,11 @@ Note that as most literature around this style of machine comprehension, we repo
 
 We start by obtaining 500 labeled examples from the MS-MARCO dataset for training and 250 for testing, all in which the answer is a substring of the context passage. We restrict the number of samples, since the purpose of this study is to understand the applicability of architectures such as Bi-DAF to other domains where we have little to no labeled data.
 
-Once we have the labeled samples from MS-MARCO, we run 2 families of experiments: first, we study direct training a new Bi-DAF over that data and second, we study fine tunning Bi-DAF entworks pre-trained over SQuAD dataset with two different learning rates.
+Once we have the labeled samples from MS-MARCO, we run 2 families of experiments: first, we study direct training a new Bi-DAF over that data and second, we study fine tuning Bi-DAF networks pre-trained over SQuAD dataset with two different learning rates.
 
-For the first experiment, we train a Bi-DAF from scratch over the MS-MARCO 500 labeled samples with no transfer. Given the little amount of data, we expect poor results, but this allows us to compare with the results we'll obtain later from transfer learning, and emphathise the value of knowledge transfer. Many studies on transfer learning start by using direct training transfer path as a baseline or means of comparison \cite{conneau:2017}.
+For the first experiment, we train a Bi-DAF from scratch over the MS-MARCO 500 labeled samples with no transfer. Given the little amount of data, we expect poor results, but this allows us to compare with the results we'll obtain later from transfer learning, and emphasize the value of knowledge transfer. Many studies on transfer learning start by using direct training transfer path as a baseline or means of comparison \cite{conneau:2017}.
 
-For the second set of experiments, we start with two Bi-DAF networks trained with the SQuAD dataset, using initial learning rates of $0.8$ and $0.5$ respectively. The motivation for this, is that even though the lower learning rate is suboptimal when verifying for SQuAD, it might help to avoid overfitting to the SQuAD domain, and allow for better adaption of the network to the MS-MARCO content. Before fine tuning the network with our MS-MARCO samples, we evaluate the SQuAD trained network over the MS-MARCO evaluation set, to also understand how much the fine tuning does later on. We incrementally fine-tune the pre-trained model with different amount of samples until we reach the total of 500 training samples, and evaluate against our MS-MARCO training samples at each step, to understand the impact of the number of samples used for fine tuning in the transfer performance. 
+For the second set of experiments, we start with two Bi-DAF networks trained with the SQuAD dataset, using initial learning rates of $0.8$ and $0.5$ respectively. The motivation for this, is that even though the lower learning rate is sub optimal when verifying for SQuAD, it might help to avoid over-fitting to the SQuAD domain, and allow for better adaption of the network to the MS-MARCO content. Before fine tuning the network with our MS-MARCO samples, we evaluate the SQuAD trained network over the MS-MARCO evaluation set, to also understand how much the fine tuning does later on. We incrementally fine-tune the pre-trained model with different amount of samples until we reach the total of 500 training samples, and evaluate against our MS-MARCO training samples at each step, to understand the impact of the number of samples used for fine tuning in the transfer performance. 
 
 The results over the MS-MARCO evaluation is depicted in the table below.
 
@@ -232,9 +231,9 @@ Now, we analyze the impact of the kind of answer for evaluating question perform
 
 Analyzing the failing questions, we found 3 specific predominant traits: The formality and correctness of the language, the type of question (Why, when, what, etc) and whether the question has or not an answer.
 
-First, most of the wrongly answered questions had informal writing that would never be in wikipedia, such as text from social networks or specific informal news. 
+First, most of the wrongly answered questions had informal writing that would never be in Wikipedia, such as text from social networks or specific informal news. 
 
-Second, we observe similar accuracies and F1 scores for questions that started with \textit{Where} and \textit{What} for example ($F1=62.02$ and $F1=61.875$ respectively), but a notorious decrease in performance for \textit{Why} questions ($F1 = 51.105$). The Bi-DAF original authors also report low performance in \textit{Why} and \textit{Where} questions, so we think this might be part of the nature of the architecture, given that these types of questions are as common as the other types in the original dataset, but it needs to be subjected to further analysis.
+Second, we observe similar accuracy and F1 scores for questions that started with \textit{Where} and \textit{What} for example ($F1=62.02$ and $F1=61.875$ respectively), but a notorious decrease in performance for \textit{Why} questions ($F1 = 51.105$). The Bi-DAF original authors also report low performance in \textit{Why} and \textit{Where} questions, so we think this might be part of the nature of the architecture, given that these types of questions are as common as the other types in the original dataset, but it needs to be subjected to further analysis.
 
 
 Finally, we observe very low F1 scores for questions that do not have an answer ($F1 = 0.48.12$), which means that our tended to provide an incorrect answer rather than predict that there was no answer. However, in our 500 samples dataset, there were only two such questions, so this low perofrmance might be related to imbalances in our training set and underlying dataset.
@@ -249,7 +248,7 @@ First, as a direct continuation of this study, we will run multiple experiments 
 
 Additionally, other model-specific techniques should be studied, such as a broader range of learning rates for the pre-training over the SQuAD dataset. Another experiment to consider would be to not freeze the embedding layer after completing the SQuAD training, and rather keep training embeddings during fine tuning.
 
-Another crucial direction would be to now apply this over the top performing ensembles. For simplicity, we did this study over Bi-DAF which achieves $F1 = 77.3$ over SQuAD. However, there are Bi-DAF based ensembles from the same authors in the leaderboard that achieve much higher results, such as the recent BiDAF + Self Attention + ELMo (ensemble) which obtained $F1 = 87.432$, and is currently in the 5th position in the SQuAD leaderbord. Should that performance improvement translate into our transfer experiments, we would be already obtaining a substantial increase in the overall applicability of this approach.
+Another crucial direction would be to now apply this over the top performing ensembles. For simplicity, we did this study over Bi-DAF which achieves $F1 = 77.3$ over SQuAD. However, there are Bi-DAF based ensembles from the same authors in the leader board that achieve much higher results, such as the recent BiDAF + Self Attention + ELMo (ensemble) which obtained $F1 = 87.432$, and is currently in the 5th position in the SQuAD leader board. Should that performance improvement translate into our transfer experiments, we would be already obtaining a substantial increase in the overall applicability of this approach.
 
 
 % include your own bib file like this:
